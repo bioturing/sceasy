@@ -45,7 +45,7 @@
 #'
 #' @import reticulate
 #' @import Matrix
-seurat2anndata <- function(obj, outFile = NULL, assay = "RNA", main_layer = "data", transfer_layers = NULL, drop_single_values = TRUE) {
+seurat2anndata <- function(obj, outFile = NULL, assay = "RNA", main_layer = "data", transfer_layers = NULL, drop_single_values = FALSE) {
   if (!requireNamespace("Seurat")) {
     stop("This function requires the 'Seurat' package.")
   }
@@ -87,9 +87,9 @@ seurat2anndata <- function(obj, outFile = NULL, assay = "RNA", main_layer = "dat
   obs <- .regularise_df(obj@meta.data, drop_single_values = drop_single_values)
 
   if ("layers" %in% slotNames(obj@assays[[assay]])) {
-    var <- .regularise_df(Seurat::GetAssay(obj, assay = assay)@meta.features, drop_single_values = drop_single_values)
-  } else {
     var <- .regularise_df(Seurat::GetAssay(obj, assay = assay)@meta.data, drop_single_values = drop_single_values)
+  } else {
+    var <- .regularise_df(Seurat::GetAssay(obj, assay = assay)@meta.features, drop_single_values = drop_single_values)
   }
 
   obsm <- NULL
