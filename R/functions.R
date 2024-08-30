@@ -50,6 +50,29 @@ seurat2anndata <- function(obj, outFile = NULL, assay = "RNA", main_layer = "dat
     stop("This function requires the 'Seurat' package.")
   }
   main_layer <- match.arg(main_layer, c("data", "counts", "scale.data"))
+
+  if ("layers" %in% slotNames(obj@assays[[assay]])) {
+    if (is.null(obj@assays[[assay]]@layers[[main_layer]])) {
+      if (!is.null(obj@assays[[assay]]@layers[["counts"]])) {
+          main_layer <- "counts"
+      } else if (!is.null(obj@assays[[assay]]@layers[["data"]])) {
+          main_layer <- "data"
+      } else if (!is.null(obj@assays[[assay]]@layers[["scale.data"]])) {
+          main_layer <- "scale.data"
+      }
+    }
+  } else {
+    if (is.null(obj@assays[[assay]][[main_layer]])) {
+      if (!is.null(obj@assays[[assay]][["counts"]])) {
+          main_layer <- "counts"
+      } else if (!is.null(obj@assays[[assay]][["data"]])) {
+          main_layer <- "data"
+      } else if (!is.null(obj@assays[[assay]][["scale.data"]])) {
+          main_layer <- "scale.data"
+      }
+    }
+  }
+
   transfer_layers <- transfer_layers[
     transfer_layers %in% c("data", "counts", "scale.data")
   ]
@@ -63,7 +86,11 @@ seurat2anndata <- function(obj, outFile = NULL, assay = "RNA", main_layer = "dat
 
   obs <- .regularise_df(obj@meta.data, drop_single_values = drop_single_values)
 
-  var <- .regularise_df(Seurat::GetAssay(obj, assay = assay)@meta.features, drop_single_values = drop_single_values)
+  if ("layers" %in% slotNames(obj@assays[[assay]])) {
+    var <- .regularise_df(Seurat::GetAssay(obj, assay = assay)@meta.features, drop_single_values = drop_single_values)
+  } else {
+    var <- .regularise_df(Seurat::GetAssay(obj, assay = assay)@meta.data, drop_single_values = drop_single_values)
+  }
 
   obsm <- NULL
   reductions <- names(obj@reductions)
