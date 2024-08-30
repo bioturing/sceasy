@@ -51,6 +51,26 @@ seurat2anndata <- function(obj, outFile = NULL, assay = "RNA", main_layer = "dat
   }
   main_layer <- match.arg(main_layer, c("data", "counts", "scale.data"))
 
+  if (is.null(obj@assays[[assay]])) {
+    if (!is.null(obj@assays$RNA)) {
+      assay <- "RNA"
+    } else if (!is.null(obj@assays$Spatial)) { # SPATIAL-SEQ
+      assay <- "Spatial"
+    } else if (!is.null(obj@assays$Vizgen)) { # Vizgen
+      assay <- "Vizgen"
+    } else if (!is.null(obj@assays$Xenium)) { # Xenium
+      assay <- "Xenium"
+    } else if (!is.null(obj@assays$Nanostring)) { # Nanostring
+      assay <- "Nanostring"
+    } else if (!is.null(obj@assays$Akoya)) { # Akoya
+      assay <- "Akoya"
+    } else if (!is.null(obj@assays$CODEX)) { # CODEX
+      assay <- "CODEX"
+    } else if (!is.null(obj@assays$SCT)) { # SCT
+      assay <- "SCT"
+    }
+  }
+
   if ("layers" %in% slotNames(obj@assays[[assay]])) {
     if (is.null(obj@assays[[assay]]@layers[[main_layer]])) {
       if (!is.null(obj@assays[[assay]]@layers[["counts"]])) {
